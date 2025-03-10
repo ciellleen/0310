@@ -1,0 +1,147 @@
+# 그동안 배운 것을 응용해서 예제 3개씩 만들기
+
+### 1. FreeRTOS를 사용하여 두 개의 태스크(Task)를 병렬로 실행하여 각각 1초와 2초 간격으로 메시지를 출력하는 코드
+
+![image.png](attachment:787d5992-eabb-4d20-b2dd-fbd9b307e025:image.png)
+
+```cpp
+#include <Arduino_FreeRTOS.h>
+
+void Task1(void* pvParameters);
+void Task2(void* pvParameters);
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println(F("Setup"));
+
+  xTaskCreate(Task1, "Task1", 128, NULL, 1, NULL);
+  xTaskCreate(Task2, "Task2", 128, NULL, 2, NULL);
+}
+
+void loop() {
+}
+
+void Task1(void* pvParameters) {
+  (void) pvParameters;
+
+  for (;;) {
+    Serial.println(F("Task1"));
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+}
+
+void Task2(void* pvParameters) {
+  (void) pvParameters;
+
+  for (;;) {
+    Serial.println(F("Task2"));
+    vTaskDelay(pdMS_TO_TICKS(2000));
+  }
+}
+
+```
+
+### 2. 서로 다른 속도로 숫자 증가
+
+- Task1: 300ms 간격으로 숫자 증가
+- Task2: 700ms 간격으로 숫자 증가
+- Task3: 1초 간격으로 숫자 증가
+
+![image.png](attachment:1f466fed-afb3-4697-8c81-c6922fabc4ca:image.png)
+
+```cpp
+#include <Arduino_FreeRTOS.h>
+
+void Task1(void* pvParameters);
+void Task2(void* pvParameters);
+void Task3(void* pvParameters);
+
+int count1 = 0;
+int count2 = 0;
+int count3 = 0;
+
+void setup() {
+  Serial.begin(9600);
+
+  xTaskCreate(Task1, "Counter1", 128, NULL, 1, NULL);
+  xTaskCreate(Task2, "Counter2", 128, NULL, 2, NULL);
+  xTaskCreate(Task3, "Counter3", 128, NULL, 3, NULL);
+}
+
+void loop() {
+}
+
+void Task1(void* pvParameters) {
+  for (;;) {
+    Serial.print(F("Task1 Count: "));
+    Serial.println(count1++);
+    vTaskDelay(pdMS_TO_TICKS(300));
+  }
+}
+
+void Task2(void* pvParameters) {
+  for (;;) {
+    Serial.print(F("Task2 Count: "));
+    Serial.println(count2++);
+    vTaskDelay(pdMS_TO_TICKS(700));
+  }
+}
+
+void Task3(void* pvParameters) {
+  for (;;) {
+    Serial.print(F("Task3 Count: "));
+    Serial.println(count3++);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+}
+
+```
+
+### 3. 태스크 상태를 교대로 출력하기
+
+- Task1: 500ms마다 "Task1 Running" 출력
+- Task2: 1초마다 "Task2 Working" 출력
+- Task3: 1.5초마다 "Task3 Processing" 출력
+
+![image.png](attachment:b8f35761-a37b-48fa-91b1-2cd24ffb5f13:image.png)
+
+```cpp
+#include <Arduino_FreeRTOS.h>
+
+void Task1(void* pvParameters);
+void Task2(void* pvParameters);
+void Task3(void* pvParameters);
+
+void setup() {
+  Serial.begin(9600);
+
+  xTaskCreate(Task1, "Status1", 128, NULL, 1, NULL);
+  xTaskCreate(Task2, "Status2", 128, NULL, 2, NULL);
+  xTaskCreate(Task3, "Status3", 128, NULL, 3, NULL);
+}
+
+void loop() {
+}
+
+void Task1(void* pvParameters) {
+  for (;;) {
+    Serial.println(F("Task1 Running"));
+    vTaskDelay(pdMS_TO_TICKS(500));
+  }
+}
+
+void Task2(void* pvParameters) {
+  for (;;) {
+    Serial.println(F("Task2 Working"));
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+}
+
+void Task3(void* pvParameters) {
+  for (;;) {
+    Serial.println(F("Task3 Processing"));
+    vTaskDelay(pdMS_TO_TICKS(1500));
+  }
+}
+
+```
